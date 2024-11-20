@@ -1,0 +1,271 @@
+# This case does not use a github-script action for pull_request.title. No match.
+name: no-script-injection-pr-title
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return ${{ github.event.pull_request.title }};
+---
+# This case uses variable interpolation in a script action for pull_request.title. Match.
+name: script-injection-pr-title
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Unsafe Script Execution
+        uses: actions/github-script@v6
+        with:
+          # ruleid: script-injection
+          script: |
+            return ${{ github.event.pull_request.title }};
+---
+# This case uses an environment variable for the context variable for pull_request.title. No match.
+name: no-injection-env-var-pr-title
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: "Set PR title environment variable"
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return "$PR_TITLE";
+---
+# This case does not use a github-script action for pull_request.body. No match.
+name: no-script-injection-pr-body
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return ${{ github.event.pull_request.body }};
+---
+# This case uses variable interpolation in a script action for pull_request.body. Match.
+name: script-injection-pr-body
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Unsafe Script Execution
+        uses: actions/github-script@v6
+        with:
+          # ruleid: script-injection
+          script: |
+            return ${{ github.event.pull_request.body }};
+---
+# This case uses an environment variable for the context variable for pull_request.body. No match.
+name: no-injection-env-var-pr-body
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: "Set PR title environment variable"
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return "$PR_BODY";
+---
+# This case does not use a github-script action for issue.title. No match.
+name: no-script-injection-issue-title
+
+on:
+  issues:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return ${{ github.event.issue.title }};
+---
+# This case uses variable interpolation in a script action for issue.title. Match.
+name: script-injection-issue-title
+
+on:
+  issues:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Unsafe Script Execution
+        uses: actions/github-script@v6
+        with:
+          # ruleid: script-injection
+          script: |
+            return ${{ github.event.issue.title }};
+---
+# This case uses an environment variable for the context variable for issue.title. No match.
+name: no-injection-env-var-issue-title
+
+on:
+  issues:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: "Set issue title environment variable"
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return "$ISSUE_TITLE";
+---
+# This case does not use a github-script action for issue.body. No match.
+name: no-script-injection-issue-body
+
+on:
+  issues:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return ${{ github.event.issue.body }};
+---
+# This case uses variable interpolation in a script action for issue.body. Match.
+name: script-injection-issue-body
+
+on:
+  issues:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Unsafe Script Execution
+        uses: actions/github-script@v6
+        with:
+          # ruleid: script-injection
+          script: |
+            return ${{ github.event.issue.body }};
+---
+# This case uses an environment variable for the context variable for issue.body. No match.
+name: no-injection-env-var-issue-body
+
+on:
+  issues:
+    branches:
+      - main
+
+jobs:
+  script-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: "Set issue title environment variable"
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+      - name: Safe Script Execution
+        uses: not-github/custom-action@latest
+        with:
+          # ok: script-injection
+          script: |
+            return "$ISSUE_BODY";

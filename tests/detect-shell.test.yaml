@@ -1,0 +1,255 @@
+# This case is vulnerable to variable interpolation for pull_request.title. Match.
+name: shell-injection-pr-title
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ruleid: shell-injection
+        run: |
+          echo "Title: ${{ github.event.pull_request.title }}"
+---
+# This case stores the context variable in an env var for pull_request.title. No match.
+name: no-shell-injection-pr-title
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Set PR title environment variable"
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+      - name:
+          "Test"
+          # ok: shell-injection
+        run: |
+          echo "Title: $PR_TITLE"
+---
+# This case is vulnerable to variable interpolation for pull_request.body. Match.
+name: shell-injection-pr-body
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ruleid: shell-injection
+        run: |
+          echo "Body: ${{ github.event.pull_request.body }}"
+---
+# This case stores the context variable in an env var for pull_request.body. No match.
+name: no-shell-injection-pr-body
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Set PR title environment variable"
+        env:
+          PR_TITLE: ${{ github.event.pull_request.body }}
+      - name:
+          "Test"
+          # ok: shell-injection
+        run: |
+          echo "Body: $PR_TITLE"
+---
+# This case shows a properly sanitised context variable for pull_request.title. No match.
+name: santised-shell-injection-pr-title
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ok: shell-injection
+        run: |
+          echo "Title: $(echo "${{ github.event.pull_request.title }}" | sed 's/[^a-zA-Z0-9 .,!?-]//g')"
+---
+# This case does not filter all metacharacters out of the context variable for pull_request.title (* in this case). Match.
+name: not-santised-shell-injection-pr-title
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ruleid: shell-injection
+        run: |
+          echo "Title: $(echo "${{ github.event.pull_request.title }}" | sed 's/[^a-zA-Z0-9 .,!?-*]//g')"
+---
+# This case does not have the complete sed to sanitise the context variable for pull_request.title. Match.
+name: also-not-santised-shell-injection-pr-title
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ruleid: shell-injection
+        run: |
+          echo "Title: $(echo "${{ github.event.pull_request.title }}" | se)"
+---
+# This case shows proper use of a Javascript action for pull_request.title. No match.
+name: no-shell-injection-pr-title-action
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: "Test"
+        uses: action/checktitle@v3
+        # ok: shell-injection
+        with:
+          title: ${{ github.event.pull_request.title }}
+---
+# This case is vulnerable to variable interpolation for issue.title. Match.
+name: shell-injection-issue-title
+on:
+  issues:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ruleid: shell-injection
+        run: |
+          echo "Title: ${{ github.event.issue.title }}"
+---
+# This case stores the context variable in an env var for issue.title. No match.
+name: no-shell-injection-issue-title
+on:
+  issues:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Set issue title environment variable"
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+      - name:
+          "Test"
+          # ok: shell-injection
+        run: |
+          echo "Title: $ISSUE_TITLE"
+---
+# This case is vulnerable to variable interpolation for issue.body. Match.
+name: shell-injection-issue-body
+on:
+  issues:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ruleid: shell-injection
+        run: |
+          echo "Body: ${{ github.event.issue.body }}"
+---
+# This case stores the context variable in an env var for pull_request.body. No match.
+name: no-shell-injection-issue-body
+on:
+  issues:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Set issue body environment variable"
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+      - name:
+          "Test"
+          # ok: shell-injection
+        run: |
+          echo "Body: $ISSUE_BODY"
+---
+# This case shows a properly sanitised context variable for pull_request.title. No match.
+name: santised-shell-injection-issue-title
+on:
+  issues:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name:
+          "Test"
+          # ok: shell-injection
+        run: |
+          echo "Title: $(echo "${{ github.event.issue.title }}" | sed 's/[^a-zA-Z0-9 .,!?-]//g')"
+---
+# This case shows proper use of a Javascript action for issue.title. No match.
+name: no-shell-injection-issue-title-action
+on:
+  issues:
+    branches:
+      - main
+jobs:
+  setup:
+    name: Setup and establish latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: "Test"
+        uses: action/checktitle@v3
+        # ok: shell-injection
+        with:
+          title: ${{ github.event.issue.title }}

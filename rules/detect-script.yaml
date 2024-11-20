@@ -1,0 +1,37 @@
+# This rule detects Javascript injection vulnerabilites in GitHub Actions yaml files.
+# It checks for a match in a 'steps' block.
+# It matches only if the action in the 'uses' block is matched by the regex: actions/github-script@.*
+# It then checks for a match in a 'with' block containing a 'script' block.
+# It then isolates the script and stores it in a metavariable for generic matching.
+# It then finally checks to see if the context variables are used in the script directly and if so, matches.
+rules:
+  - id: script-injection
+    languages:
+      - yaml
+    message:
+      "Do not allow variable interpolation from untrusted sources with ${{...}} in an 'actions/github-script' script block.
+      Rather use an environment variable enclosed in double quotes."
+    patterns:
+      - pattern-inside: "steps: [...]"
+      - pattern-inside: |
+          uses: $ACTIONS
+          ...
+      - pattern-inside: |
+          with:
+            ...
+            script: ...
+            ...
+      - pattern: "script: $SCRIPT"
+      - metavariable-regex:
+          metavariable: $ACTIONS
+          regex: actions/github-script@.*
+      - metavariable-pattern:
+          language: generic
+          metavariable: $SCRIPT
+          patterns:
+            - pattern-either:
+                - pattern: ${{ github.event.issue.title }}
+                - pattern: ${{ github.event.issue.body }}
+                - pattern: ${{ github.event.pull_request.title }}
+                - pattern: ${{ github.event.pull_request.body }}
+    severity: ERROR

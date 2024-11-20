@@ -1,0 +1,29 @@
+# This rule detects shell injection vulnerabilities in GitHub Actions yaml files.
+# It checks for a match in a 'steps' block and then inside that for a 'run' block.
+# It then isolates the shell script and stores it in a metavariable for generic matching.
+# It then tries a regex match on any of the context variables.
+# It uses a negative lookahead to only match if the context variable is not filtered with sed.
+rules:
+  - id: shell-injection
+    languages:
+      - yaml
+    message: |
+      'Do not allow variable interpolation from untrusted sources with ${{...}} in a 'run' block.
+      Rather use an environment variable enclosed in double quotes.
+      Alternatively, sanitise the input using "| sed 's/[^a-zA-Z0-9 .,!?-]//g'" to filter all metacharacters.
+    patterns:
+      - pattern-inside: "steps: [...]"
+      - pattern-inside: |
+          - run: ...
+            ...
+      - pattern: "run: $SHELL"
+      - metavariable-pattern:
+          language: generic
+          metavariable: $SHELL
+          patterns:
+            - pattern-either:
+                - pattern-regex: "\\${{ github\\.event\\.issue\\.title }}(?!.*\\| sed 's/\\[\\^a-zA-Z0-9\\s\\.,\\!\\?-]//g')"
+                - pattern-regex: "\\${{ github\\.event\\.issue\\.body }}(?!.*\\| sed 's/\\[\\^a-zA-Z0-9\\s\\.,\\!\\?-]//g')"
+                - pattern-regex: "\\${{ github\\.event\\.pull_request\\.title }}(?!.*\\| sed 's/\\[\\^a-zA-Z0-9\\s\\.,\\!\\?-]//g')"
+                - pattern-regex: "\\${{ github\\.event\\.pull_request\\.body }}(?!.*\\| sed 's/\\[\\^a-zA-Z0-9\\s\\.,\\!\\?-]//g')"
+    severity: ERROR
